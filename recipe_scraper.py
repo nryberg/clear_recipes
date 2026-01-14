@@ -139,7 +139,42 @@ def parse_instructions(instructions_text: str) -> List[Dict]:
                     'timers': []
                 })
 
-    return steps
+    # Break steps into individual sentences
+    sentence_steps = break_into_sentences(steps)
+
+    return sentence_steps
+
+
+def break_into_sentences(steps: List[Dict]) -> List[Dict]:
+    """
+    Break recipe steps into individual sentences.
+
+    Args:
+        steps: List of step dictionaries with 'text' field
+
+    Returns:
+        List of sentence-level steps
+    """
+    sentence_steps = []
+
+    for step in steps:
+        text = step['text']
+
+        # Split by sentence boundaries (., !, ?)
+        # Use regex to split but keep the punctuation
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if sentence:
+                sentence_steps.append({
+                    'number': len(sentence_steps) + 1,
+                    'text': sentence,
+                    'ingredients': [],
+                    'timers': []
+                })
+
+    return sentence_steps
 
 
 if __name__ == '__main__':

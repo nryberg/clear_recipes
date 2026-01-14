@@ -17,6 +17,54 @@ app = Flask(__name__)
 RECIPES_DIR = 'recipes'
 
 
+def process_recipe_steps(recipe_data):
+    """
+    Process recipe steps:
+    1. Add initial step with all ingredients
+    2. Match ingredients to each step
+    3. Carry over ingredients if step has none
+    4. Detect timers
+    """
+    all_ingredients = recipe_data['ingredients']
+    steps = recipe_data['steps']
+
+    # Create initial "ingredients" step
+    ingredients_step = {
+        'number': 0,
+        'text': 'These are all the ingredients you will need for this recipe.',
+        'ingredients': all_ingredients,
+        'timers': [],
+        'is_ingredients_list': True
+    }
+
+    # Process each instruction step
+    processed_steps = [ingredients_step]
+
+    for step in steps:
+        # Match ingredients to this step
+        step['ingredients'] = match_ingredients_to_step(step['text'], all_ingredients)
+
+        # Detect timers in this step
+        step['timers'] = detect_timers(step['text'])
+
+        # Renumber
+        step['number'] = len(processed_steps)
+        processed_steps.append(step)
+
+    # Add final "Bon Appetit!" page
+    final_step = {
+        'number': len(processed_steps),
+        'text': 'Bon Appetit!',
+        'ingredients': [],
+        'timers': [],
+        'is_final_page': True
+    }
+    processed_steps.append(final_step)
+
+    recipe_data['steps'] = processed_steps
+    return recipe_data
+
+
 @app.route('/')
 def index():
     """Home page - recipe selection and URL input."""
@@ -70,15 +118,8 @@ def get_recipe(recipe_id):
         # Parse the recipe
         recipe_data = parse_recipe(filepath)
 
-        # Process each step: match ingredients and detect timers
-        all_ingredients = recipe_data['ingredients']
-
-        for step in recipe_data['steps']:
-            # Match ingredients to this step
-            step['ingredients'] = match_ingredients_to_step(step['text'], all_ingredients)
-
-            # Detect timers in this step
-            step['timers'] = detect_timers(step['text'])
+        # Process steps: add ingredients list, match ingredients, carry over, detect timers
+        recipe_data = process_recipe_steps(recipe_data)
 
         return jsonify({
             'success': True,
@@ -109,15 +150,8 @@ def scrape_recipe_endpoint():
         # Scrape the recipe
         recipe_data = scrape_recipe(url)
 
-        # Process each step: match ingredients and detect timers
-        all_ingredients = recipe_data['ingredients']
-
-        for step in recipe_data['steps']:
-            # Match ingredients to this step
-            step['ingredients'] = match_ingredients_to_step(step['text'], all_ingredients)
-
-            # Detect timers in this step
-            step['timers'] = detect_timers(step['text'])
+        # Process steps: add ingredients list, match ingredients, carry over, detect timers
+        recipe_data = process_recipe_steps(recipe_data)
 
         return jsonify({
             'success': True,

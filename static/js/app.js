@@ -127,27 +127,43 @@ window.recipeViewer = (function() {
             elements.stepIngredients.innerHTML = '';
         }
 
-        // Render instruction with dynamic font sizing
-        const fontSize = calculateFontSize(step.text.length);
-        elements.stepInstruction.className = `leading-relaxed ${fontSize}`;
-        elements.stepInstruction.textContent = step.text;
+        // Check if this is the final "Bon Appetit!" page
+        if (step.is_final_page) {
+            // Render final page with centered text and home link
+            elements.stepInstruction.className = `leading-relaxed text-center text-6xl md:text-8xl font-bold`;
+            elements.stepInstruction.textContent = step.text;
 
-        // Render timers
-        if (step.timers && step.timers.length > 0) {
-            elements.stepTimers.innerHTML = step.timers.map((timer, i) => `
-                <div class="timer-container" data-timer-index="${i}">
-                    ${window.recipeTimer ? window.recipeTimer.createTimerHTML(timer, i) : ''}
+            // Add "Back to Home" button
+            elements.stepTimers.innerHTML = `
+                <div class="flex justify-center mt-12">
+                    <a href="/" class="px-8 py-4 text-2xl md:text-3xl font-semibold bg-black dark:bg-white text-white dark:text-black rounded hover:bg-gray-800 dark:hover:bg-gray-200 transition">
+                        Back to Home
+                    </a>
                 </div>
-            `).join('');
-
-            // Initialize timers
-            if (window.recipeTimer) {
-                step.timers.forEach((timer, i) => {
-                    window.recipeTimer.initTimer(i, timer.duration_seconds);
-                });
-            }
+            `;
         } else {
-            elements.stepTimers.innerHTML = '';
+            // Render instruction with dynamic font sizing
+            const fontSize = calculateFontSize(step.text.length);
+            elements.stepInstruction.className = `leading-relaxed ${fontSize}`;
+            elements.stepInstruction.textContent = step.text;
+
+            // Render timers
+            if (step.timers && step.timers.length > 0) {
+                elements.stepTimers.innerHTML = step.timers.map((timer, i) => `
+                    <div class="timer-container" data-timer-index="${i}">
+                        ${window.recipeTimer ? window.recipeTimer.createTimerHTML(timer, i) : ''}
+                    </div>
+                `).join('');
+
+                // Initialize timers
+                if (window.recipeTimer) {
+                    step.timers.forEach((timer, i) => {
+                        window.recipeTimer.initTimer(i, timer.duration_seconds);
+                    });
+                }
+            } else {
+                elements.stepTimers.innerHTML = '';
+            }
         }
 
         // Update step indicator
