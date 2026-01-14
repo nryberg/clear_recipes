@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Clear Recipes - Home{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center p-8">
+    <div class="max-w-2xl w-full">
+        <!-- Dark mode toggle (upper right corner) -->
+        <div class="fixed top-4 right-4">
+            <button id="dark-mode-toggle" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="Toggle Dark Mode">
+                <!-- Sun icon (shown in dark mode) -->
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <!-- Moon icon (shown in light mode) -->
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-bold text-center mb-4">Clear Recipes</h1>
+        <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 text-center mb-12">
+            Read recipes step-by-step, clearly and simply
+        </p>
+
+        <!-- URL Input Section -->
+        <div class="mb-12">
+            <h2 class="text-2xl md:text-3xl font-semibold mb-4">Paste a Recipe URL</h2>
+            <div class="flex gap-4">
+                <input
+                    type="url"
+                    id="recipe-url"
+                    placeholder="https://www.example.com/recipe"
+                    class="flex-1 px-4 py-3 text-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded focus:outline-none focus:border-black dark:focus:border-white"
+                >
+                <button
+                    id="scrape-btn"
+                    class="px-8 py-3 text-lg font-semibold bg-black dark:bg-white text-white dark:text-black rounded hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                    Load
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Supports 100+ recipe websites including AllRecipes, Food Network, NYT Cooking, and more
+            </p>
+            <div id="scrape-error" class="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded hidden"></div>
+            <div id="scrape-loading" class="mt-4 p-4 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hidden">
+                Loading recipe...
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-4 mb-12">
+            <div class="flex-1 h-px bg-gray-300 dark:bg-gray-700"></div>
+            <span class="text-gray-500 dark:text-gray-400">OR</span>
+            <div class="flex-1 h-px bg-gray-300 dark:bg-gray-700"></div>
+        </div>
+
+        <!-- Local Recipes Section -->
+        <div>
+            <h2 class="text-2xl md:text-3xl font-semibold mb-4">Choose a Local Recipe</h2>
+            <div id="recipes-list" class="space-y-3">
+                <div class="text-gray-500 dark:text-gray-400">Loading recipes...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Load local recipes
+    async function loadRecipes() {
+        try {
+            const response = await fetch('/api/recipes');
+            const data = await response.json();
+
+            const listElement = document.getElementById('recipes-list');
+
+            if (data.success && data.recipes.length > 0) {
+                listElement.innerHTML = data.recipes.map(recipe => `
+                    <a href="/recipe/${recipe.id}"
+                       class="block p-4 border-2 border-gray-300 dark:border-gray-600 rounded hover:border-black dark:hover:border-white hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        <span class="text-xl font-medium">${recipe.name}</span>
+                    </a>
+                `).join('');
+            } else {
+                listElement.innerHTML = '<div class="text-gray-500 dark:text-gray-400">No recipes found. Add .txt files to the recipes/ directory.</div>';
+            }
+        } catch (error) {
+            console.error('Error loading recipes:', error);
+            document.getElementById('recipes-list').innerHTML =
+                '<div class="text-red-500 dark:text-red-400">Error loading recipes</div>';
+        }
+    }
+
+    // Scrape recipe from URL
+    async function scrapeRecipe() {
+        const urlInput = document.getElementById('recipe-url');
+        const scrapeBtn = document.getElementById('scrape-btn');
+        const errorDiv = document.getElementById('scrape-error');
+        const loadingDiv = document.getElementById('scrape-loading');
+
+        const url = urlInput.value.trim();
+
+        if (!url) {
+            errorDiv.textContent = 'Please enter a recipe URL';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        // Hide error, show loading
+        errorDiv.classList.add('hidden');
+        loadingDiv.classList.remove('hidden');
+        scrapeBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/recipe/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Store recipe data in sessionStorage
+                sessionStorage.setItem('scraped-recipe', JSON.stringify(data.recipe));
+
+                // Navigate to recipe viewer
+                window.location.href = '/recipe/scraped';
+            } else {
+                errorDiv.textContent = data.error || 'Failed to scrape recipe';
+                errorDiv.classList.remove('hidden');
+                loadingDiv.classList.add('hidden');
+                scrapeBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error scraping recipe:', error);
+            errorDiv.textContent = 'Network error. Please try again.';
+            errorDiv.classList.remove('hidden');
+            loadingDiv.classList.add('hidden');
+            scrapeBtn.disabled = false;
+        }
+    }
+
+    // Event listeners
+    document.getElementById('scrape-btn').addEventListener('click', scrapeRecipe);
+    document.getElementById('recipe-url').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            scrapeRecipe();
+        }
+    });
+
+    // Load recipes on page load
+    loadRecipes();
+</script>
+{% endblock %}

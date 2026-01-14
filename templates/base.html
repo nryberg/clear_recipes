@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Clear Recipes{% endblock %}</title>
+
+    <!-- Dark mode initialization (prevent flash) -->
+    <script>
+        // Check for saved dark mode preference or default to light mode
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind config for larger font sizes and dark mode -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontSize: {
+                        'display': ['4rem', '1.1'],
+                        'mega': ['6rem', '1'],
+                        'ultra': ['8rem', '1']
+                    }
+                }
+            }
+        }
+    </script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-200">
+    {% block content %}{% endblock %}
+
+    <!-- Dark mode toggle script -->
+    <script>
+        // Dark mode functionality
+        window.darkMode = {
+            toggle: function() {
+                const html = document.documentElement;
+                const isDark = html.classList.toggle('dark');
+                localStorage.setItem('darkMode', isDark);
+            },
+
+            init: function() {
+                const toggleBtn = document.getElementById('dark-mode-toggle');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', this.toggle);
+                }
+            }
+        };
+
+        // Initialize dark mode toggle when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.darkMode.init());
+        } else {
+            window.darkMode.init();
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

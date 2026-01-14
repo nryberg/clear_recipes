@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Clear Recipes - Recipe Viewer{% endblock %}
+
+{% block content %}
+<div id="recipe-container" class="min-h-screen flex flex-col">
+    <!-- Recipe header -->
+    <header class="p-4 md:p-6 border-b dark:border-gray-700">
+        <div class="max-w-6xl mx-auto relative">
+            <!-- Home icon (upper left) -->
+            <a href="/" class="absolute left-0 top-0 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="Back to Home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+
+            <!-- Dark mode toggle (upper right) -->
+            <button id="dark-mode-toggle" class="absolute right-0 top-0 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="Toggle Dark Mode">
+                <!-- Sun icon (shown in dark mode) -->
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <!-- Moon icon (shown in light mode) -->
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+
+            <!-- Recipe title and serves -->
+            <div class="pt-12">
+                <h1 id="recipe-title" class="text-3xl md:text-5xl font-bold mb-2"></h1>
+                <p id="recipe-serves" class="text-lg md:text-xl text-gray-600 dark:text-gray-400"></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Step content (dynamically updated) -->
+    <main id="step-content" class="flex-1 p-6 md:p-12 flex items-center justify-center">
+        <div class="max-w-4xl w-full">
+            <!-- Ingredients for this step -->
+            <div id="step-ingredients" class="mb-8"></div>
+
+            <!-- Step instruction -->
+            <div id="step-instruction" class="leading-relaxed"></div>
+
+            <!-- Timers -->
+            <div id="step-timers" class="mt-8"></div>
+        </div>
+    </main>
+
+    <!-- Navigation controls -->
+    <footer class="p-4 md:p-6 border-t dark:border-gray-700">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <button
+                id="prev-btn"
+                class="text-xl md:text-2xl px-4 md:px-8 py-2 md:py-4 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            >
+                ← Previous
+            </button>
+
+            <span id="step-indicator" class="text-lg md:text-xl font-medium"></span>
+
+            <button
+                id="next-btn"
+                class="text-xl md:text-2xl px-4 md:px-8 py-2 md:py-4 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            >
+                Next →
+            </button>
+        </div>
+    </footer>
+
+    <!-- Loading state -->
+    <div id="loading-state" class="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center">
+        <div class="text-center">
+            <div class="text-2xl md:text-4xl font-bold mb-4">Loading recipe...</div>
+            <div class="text-gray-600 dark:text-gray-400">Please wait</div>
+        </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="error-state" class="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center hidden">
+        <div class="text-center max-w-md p-8">
+            <div class="text-2xl md:text-4xl font-bold mb-4 text-red-600 dark:text-red-400">Error</div>
+            <p id="error-message" class="text-lg text-gray-700 dark:text-gray-300 mb-6"></p>
+            <a href="/" class="inline-block px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded hover:bg-gray-800 dark:hover:bg-gray-200 transition">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<script>
+    // Initialize the recipe viewer with the recipe ID
+    const recipeId = "{{ recipe_id }}";
+    window.recipeViewer.init(recipeId);
+</script>
+{% endblock %}

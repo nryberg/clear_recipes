@@ -1,3 +1,6 @@
+# Deployment script (server-specific)
+deploy.sh
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
