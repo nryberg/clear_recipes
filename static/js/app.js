@@ -32,7 +32,8 @@ window.recipeViewer = (function() {
             progressBar: document.getElementById('progress-bar'),
             saveBtn: document.getElementById('save-btn'),
             saveIconOutline: document.getElementById('save-icon-outline'),
-            saveIconFilled: document.getElementById('save-icon-filled')
+            saveIconFilled: document.getElementById('save-icon-filled'),
+            shareBtn: document.getElementById('share-btn')
         };
 
         // Load recipe
@@ -41,6 +42,11 @@ window.recipeViewer = (function() {
         // Setup save button
         if (elements.saveBtn) {
             elements.saveBtn.addEventListener('click', handleSaveClick);
+        }
+
+        // Setup share button
+        if (elements.shareBtn) {
+            elements.shareBtn.addEventListener('click', handleShareClick);
         }
 
         // Initialize navigation
@@ -294,6 +300,9 @@ window.recipeViewer = (function() {
         elements.errorState.classList.remove('hidden');
     }
 
+    // Store share ID for current recipe
+    let currentShareId = null;
+
     /**
      * Handle save button click
      */
@@ -303,13 +312,52 @@ window.recipeViewer = (function() {
         const result = await window.recipeStorage.saveRecipe(recipe);
 
         if (result.success) {
+            currentShareId = result.share_id;
             updateSaveIcon(true);
+            updateShareButton(true);
             // Brief visual feedback
             elements.saveBtn.classList.add('scale-110');
             setTimeout(() => elements.saveBtn.classList.remove('scale-110'), 200);
         } else {
             alert('Failed to save recipe: ' + (result.error || 'Unknown error'));
         }
+    }
+
+    /**
+     * Handle share button click
+     */
+    async function handleShareClick() {
+        if (!currentShareId) {
+            // Need to save first
+            await handleSaveClick();
+            if (!currentShareId) return;
+        }
+
+        const shareUrl = `${window.location.origin}/s/${currentShareId}`;
+
+        // Try to use clipboard API
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            showToast('Link copied to clipboard!');
+        } catch (e) {
+            // Fallback: show the URL in a prompt
+            prompt('Share this link:', shareUrl);
+        }
+    }
+
+    /**
+     * Show a brief toast message
+     */
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
     }
 
     /**
@@ -328,13 +376,36 @@ window.recipeViewer = (function() {
     }
 
     /**
-     * Check if current recipe is saved and update icon
+     * Update share button visibility
+     */
+    function updateShareButton(show) {
+        if (!elements.shareBtn) return;
+
+        if (show) {
+            elements.shareBtn.classList.remove('hidden');
+        } else {
+            elements.shareBtn.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Check if current recipe is saved and update icons
      */
     async function checkIfSaved() {
         if (!recipe || !window.recipeStorage) return;
 
-        const isSaved = await window.recipeStorage.isRecipeSaved(recipe.title);
-        updateSaveIcon(isSaved);
+        const savedRecipes = await window.recipeStorage.getSavedRecipes();
+        const savedRecipe = savedRecipes.find(r => r.title === recipe.title);
+
+        if (savedRecipe) {
+            currentShareId = savedRecipe.share_id || null;
+            updateSaveIcon(true);
+            updateShareButton(!!currentShareId);
+        } else {
+            currentShareId = null;
+            updateSaveIcon(false);
+            updateShareButton(false);
+        }
     }
 
     // Public API

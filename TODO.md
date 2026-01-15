@@ -2,7 +2,6 @@
 
 - [ ] Implement authentication with Google/GitHub OAuth (see AUTH_STRATEGY.md)
 - [ ] I would like to be able to search saved recipes
-- [ ] Make it possible to share recipes with a shortened URL
 
 ## Completed:
 - [x] Add a progress bar at the top of the page
@@ -14,3 +13,4 @@
 - [x] If there are any notes in the recipe, show those on the second page, titled "Notes", and then proceed with the steps of the recipe.
 - [x] Build a strategy around using Google and other login providers like Github (see AUTH_STRATEGY.md)
 - [x] I would like to be able to save recipes
+- [x] Make it possible to share recipes with a shortened URL

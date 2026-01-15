@@ -3,10 +3,12 @@ Clear Recipes - Flask application
 A web app for displaying recipes step-by-step with smart features.
 """
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect
 import os
 import re
 import json
+import string
+import random
 import argparse
 from datetime import datetime
 from recipe_parser import parse_recipe
@@ -17,6 +19,14 @@ from timer_detector import detect_timers
 
 # File for storing saved recipes (can be backed up)
 SAVED_RECIPES_FILE = 'saved_recipes.json'
+
+# Characters for short IDs (URL-safe)
+SHORT_ID_CHARS = string.ascii_letters + string.digits
+
+
+def generate_short_id(length=6):
+    """Generate a random short ID for sharing."""
+    return ''.join(random.choice(SHORT_ID_CHARS) for _ in range(length))
 
 
 def load_saved_recipes():
@@ -144,6 +154,19 @@ def recipe_viewer(recipe_id):
     return render_template('recipe.html', recipe_id=recipe_id)
 
 
+@app.route('/s/<share_id>')
+def short_url(share_id):
+    """Short URL redirect for shared recipes."""
+    recipes = load_saved_recipes()
+    recipe = next((r for r in recipes if r.get('share_id') == share_id), None)
+
+    if not recipe:
+        return render_template('index.html'), 404
+
+    # Redirect to the full recipe URL
+    return redirect(f"/recipe/saved-{recipe['id']}")
+
+
 @app.route('/api/recipes')
 def list_recipes():
     """List all available local recipes."""
@@ -259,6 +282,7 @@ def list_saved_recipes():
     # Return summary info only (not full recipe data)
     summaries = [{
         'id': r['id'],
+        'share_id': r.get('share_id'),
         'title': r['title'],
         'serves': r.get('serves'),
         'saved_at': r.get('saved_at')
@@ -289,8 +313,12 @@ def save_recipe_endpoint():
             None
         )
 
+        # Keep existing share_id if updating, otherwise generate new one
+        existing_share_id = recipes[existing_index].get('share_id') if existing_index is not None else None
+
         recipe_to_save = {
             'id': recipes[existing_index]['id'] if existing_index is not None else str(int(datetime.now().timestamp() * 1000)),
+            'share_id': existing_share_id or generate_short_id(),
             'title': data['title'],
             'serves': data.get('serves'),
             'ingredients': data.get('ingredients', []),
@@ -312,7 +340,8 @@ def save_recipe_endpoint():
         return jsonify({
             'success': True,
             'isUpdate': is_update,
-            'id': recipe_to_save['id']
+            'id': recipe_to_save['id'],
+            'share_id': recipe_to_save['share_id']
         })
 
     except Exception as e:

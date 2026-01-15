@@ -103,6 +103,15 @@
                             <span class="text-xl font-medium">${recipe.title}</span>
                             ${recipe.serves ? `<span class="text-gray-500 dark:text-gray-400 ml-2">(${recipe.serves})</span>` : ''}
                         </a>
+                        ${recipe.share_id ? `
+                        <button onclick="shareRecipe('${recipe.share_id}')"
+                                class="p-2 text-gray-400 hover:text-blue-500 transition"
+                                title="Copy share link">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                        </button>
+                        ` : ''}
                         <button onclick="deleteSavedRecipe('${recipe.id}')"
                                 class="p-2 text-gray-400 hover:text-red-500 transition"
                                 title="Delete">
@@ -118,6 +127,29 @@
         } catch (error) {
             console.error('Error loading saved recipes:', error);
         }
+    }
+
+    // Share a saved recipe
+    async function shareRecipe(shareId) {
+        const shareUrl = `${window.location.origin}/s/${shareId}`;
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            showToast('Link copied to clipboard!');
+        } catch (e) {
+            prompt('Share this link:', shareUrl);
+        }
+    }
+
+    // Show toast message
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
     }
 
     // Delete a saved recipe
