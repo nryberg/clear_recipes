@@ -5,11 +5,39 @@ A web app for displaying recipes step-by-step with smart features.
 
 from flask import Flask, render_template, jsonify, request
 import os
+import re
 import argparse
 from recipe_parser import parse_recipe
 from recipe_scraper import scrape_recipe
 from ingredient_matcher import match_ingredients_to_step
 from timer_detector import detect_timers
+
+
+def detect_preheat_oven(steps):
+    """
+    Scan steps for preheat oven instructions.
+    Returns a list of preheat instructions found (e.g., "Preheat oven to 350°F").
+    """
+    preheat_pattern = re.compile(
+        r'preheat\s+(?:the\s+)?oven\s+to\s+(\d+)\s*°?\s*(F|C|fahrenheit|celsius)?',
+        re.IGNORECASE
+    )
+
+    preheat_instructions = []
+    for step in steps:
+        text = step.get('text', '')
+        match = preheat_pattern.search(text)
+        if match:
+            temp = match.group(1)
+            unit = match.group(2) or 'F'
+            # Normalize unit
+            if unit.lower() in ['c', 'celsius']:
+                unit = '°C'
+            else:
+                unit = '°F'
+            preheat_instructions.append(f"Preheat oven to {temp}{unit}")
+
+    return preheat_instructions
 
 app = Flask(__name__)
 
@@ -28,13 +56,17 @@ def process_recipe_steps(recipe_data):
     all_ingredients = recipe_data['ingredients']
     steps = recipe_data['steps']
 
+    # Detect preheat oven instructions
+    preheat_instructions = detect_preheat_oven(steps)
+
     # Create initial "ingredients" step
     ingredients_step = {
         'number': 0,
-        'text': 'These are all the ingredients you will need for this recipe.',
+        'text': 'Gather these ingredients:',
         'ingredients': all_ingredients,
         'timers': [],
-        'is_ingredients_list': True
+        'is_ingredients_list': True,
+        'preheat': preheat_instructions
     }
 
     # Process each instruction step

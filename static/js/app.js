@@ -120,9 +120,9 @@ window.recipeViewer = (function() {
 
         // Render ingredients for this step
         if (step.ingredients && step.ingredients.length > 0) {
-            elements.stepIngredients.innerHTML = `
+            let ingredientsHTML = `
                 <div class="bg-gray-100 dark:bg-gray-800 p-4 md:p-6 rounded">
-                    <h3 class="text-xl md:text-2xl font-semibold mb-3">Ingredients for this step:</h3>
+                    <h3 class="text-xl md:text-2xl font-semibold mb-3">${step.is_ingredients_list ? 'Ingredients:' : 'Ingredients for this step:'}</h3>
                     <ul class="space-y-2">
                         ${step.ingredients.map(ing => `
                             <li class="text-lg md:text-xl">${ing}</li>
@@ -130,6 +130,22 @@ window.recipeViewer = (function() {
                     </ul>
                 </div>
             `;
+
+            // Add preheat info on ingredients page
+            if (step.is_ingredients_list && step.preheat && step.preheat.length > 0) {
+                ingredientsHTML += `
+                    <div class="mt-4 bg-orange-100 dark:bg-orange-900 p-4 md:p-6 rounded border-l-4 border-orange-500">
+                        <h3 class="text-xl md:text-2xl font-semibold mb-2">Before you start:</h3>
+                        <ul class="space-y-2">
+                            ${step.preheat.map(p => `
+                                <li class="text-lg md:text-xl font-medium">${p}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            elements.stepIngredients.innerHTML = ingredientsHTML;
         } else {
             elements.stepIngredients.innerHTML = '';
         }
