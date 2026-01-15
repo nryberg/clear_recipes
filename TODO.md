@@ -1,7 +1,6 @@
 # TODO:
 
 - [ ] Implement authentication with Google/GitHub OAuth (see AUTH_STRATEGY.md)
-- [ ] I would like to be able to search saved recipes
 
 ## Completed:
 - [x] Add a progress bar at the top of the page
@@ -14,3 +13,4 @@
 - [x] Build a strategy around using Google and other login providers like Github (see AUTH_STRATEGY.md)
 - [x] I would like to be able to save recipes
 - [x] Make it possible to share recipes with a shortened URL
+- [x] I would like to be able to search saved recipes

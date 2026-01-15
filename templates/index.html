@@ -62,6 +62,12 @@
         <!-- Saved Recipes Section -->
         <div id="saved-recipes-section" class="mb-12 hidden">
             <h2 class="text-2xl md:text-3xl font-semibold mb-4">Saved Recipes</h2>
+            <input
+                type="text"
+                id="saved-search"
+                placeholder="Search saved recipes..."
+                class="w-full px-4 py-2 mb-4 text-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded focus:outline-none focus:border-black dark:focus:border-white"
+            >
             <div id="saved-recipes-list" class="space-y-3"></div>
         </div>
 
@@ -85,6 +91,51 @@
 
 {% block scripts %}
 <script>
+    // Store saved recipes for filtering
+    let allSavedRecipes = [];
+
+    // Render saved recipes (with optional filter)
+    function renderSavedRecipes(filter = '') {
+        const listElement = document.getElementById('saved-recipes-list');
+        const filterLower = filter.toLowerCase();
+
+        const filtered = filter
+            ? allSavedRecipes.filter(r => r.title.toLowerCase().includes(filterLower))
+            : allSavedRecipes;
+
+        if (filtered.length > 0) {
+            listElement.innerHTML = filtered.map(recipe => `
+                <div class="flex items-center gap-2 saved-recipe-item">
+                    <a href="/recipe/saved-${recipe.id}"
+                       class="flex-1 block p-4 border-2 border-gray-300 dark:border-gray-600 rounded hover:border-black dark:hover:border-white hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        <span class="text-xl font-medium">${recipe.title}</span>
+                        ${recipe.serves ? `<span class="text-gray-500 dark:text-gray-400 ml-2">(${recipe.serves})</span>` : ''}
+                    </a>
+                    ${recipe.share_id ? `
+                    <button onclick="shareRecipe('${recipe.share_id}')"
+                            class="p-2 text-gray-400 hover:text-blue-500 transition"
+                            title="Copy share link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                    </button>
+                    ` : ''}
+                    <button onclick="deleteSavedRecipe('${recipe.id}')"
+                            class="p-2 text-gray-400 hover:text-red-500 transition"
+                            title="Delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        } else if (filter) {
+            listElement.innerHTML = '<div class="text-gray-500 dark:text-gray-400">No recipes match your search.</div>';
+        } else {
+            listElement.innerHTML = '';
+        }
+    }
+
     // Load saved recipes
     async function loadSavedRecipes() {
         try {
@@ -92,36 +143,13 @@
             const data = await response.json();
 
             const section = document.getElementById('saved-recipes-section');
-            const listElement = document.getElementById('saved-recipes-list');
 
             if (data.success && data.recipes.length > 0) {
+                allSavedRecipes = data.recipes;
                 section.classList.remove('hidden');
-                listElement.innerHTML = data.recipes.map(recipe => `
-                    <div class="flex items-center gap-2">
-                        <a href="/recipe/saved-${recipe.id}"
-                           class="flex-1 block p-4 border-2 border-gray-300 dark:border-gray-600 rounded hover:border-black dark:hover:border-white hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <span class="text-xl font-medium">${recipe.title}</span>
-                            ${recipe.serves ? `<span class="text-gray-500 dark:text-gray-400 ml-2">(${recipe.serves})</span>` : ''}
-                        </a>
-                        ${recipe.share_id ? `
-                        <button onclick="shareRecipe('${recipe.share_id}')"
-                                class="p-2 text-gray-400 hover:text-blue-500 transition"
-                                title="Copy share link">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                        </button>
-                        ` : ''}
-                        <button onclick="deleteSavedRecipe('${recipe.id}')"
-                                class="p-2 text-gray-400 hover:text-red-500 transition"
-                                title="Delete">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                `).join('');
+                renderSavedRecipes();
             } else {
+                allSavedRecipes = [];
                 section.classList.add('hidden');
             }
         } catch (error) {
@@ -254,6 +282,11 @@
         if (e.key === 'Enter') {
             scrapeRecipe();
         }
+    });
+
+    // Search saved recipes
+    document.getElementById('saved-search').addEventListener('input', (e) => {
+        renderSavedRecipes(e.target.value);
     });
 
     // Load recipes on page load
