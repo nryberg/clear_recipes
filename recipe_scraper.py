@@ -53,6 +53,13 @@ def scrape_recipe(url: str) -> Dict:
         except:
             pass
 
+        # Try to get notes/tips
+        notes = None
+        try:
+            notes = scraper.notes()
+        except:
+            pass
+
         return {
             'title': title,
             'serves': yields,
@@ -61,7 +68,8 @@ def scrape_recipe(url: str) -> Dict:
             'source_url': url,
             'prep_time': prep_time,
             'cook_time': cook_time,
-            'total_time': total_time
+            'total_time': total_time,
+            'notes': notes
         }
 
     except Exception as e:

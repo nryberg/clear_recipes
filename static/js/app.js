@@ -151,8 +151,18 @@ window.recipeViewer = (function() {
             elements.stepIngredients.innerHTML = '';
         }
 
+        // Check if this is the notes page
+        if (step.is_notes_page) {
+            // Render notes page with title
+            elements.stepInstruction.className = 'leading-relaxed';
+            elements.stepInstruction.innerHTML = `
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Notes</h2>
+                <div class="text-xl md:text-2xl whitespace-pre-line">${step.text}</div>
+            `;
+            elements.stepTimers.innerHTML = '';
+        }
         // Check if this is the final "Bon Appetit!" page
-        if (step.is_final_page) {
+        else if (step.is_final_page) {
             // Render final page with centered text and home link
             elements.stepInstruction.className = `leading-relaxed text-center text-6xl md:text-8xl font-bold`;
             elements.stepInstruction.textContent = step.text;

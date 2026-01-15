@@ -66,6 +66,27 @@ def parse_recipe_text(content: str) -> Dict:
         if in_ingredients and stripped:
             ingredients.append(stripped)
 
+    # Find notes section
+    notes = None
+    in_notes = False
+    notes_lines = []
+    for line in lines:
+        stripped = line.strip()
+
+        if stripped.lower() == "notes:":
+            in_notes = True
+            continue
+
+        if in_notes and stripped.lower() in ["instructions:", "ingredients:"]:
+            in_notes = False
+            break
+
+        if in_notes and stripped:
+            notes_lines.append(stripped)
+
+    if notes_lines:
+        notes = '\n'.join(notes_lines)
+
     # Find instruction steps
     steps = []
     in_instructions = False
@@ -108,7 +129,8 @@ def parse_recipe_text(content: str) -> Dict:
         'title': title,
         'serves': serves,
         'ingredients': ingredients,
-        'steps': sentence_steps
+        'steps': sentence_steps,
+        'notes': notes
     }
 
 

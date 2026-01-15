@@ -72,6 +72,18 @@ def process_recipe_steps(recipe_data):
     # Process each instruction step
     processed_steps = [ingredients_step]
 
+    # Add notes page if recipe has notes
+    notes = recipe_data.get('notes')
+    if notes:
+        notes_step = {
+            'number': len(processed_steps),
+            'text': notes,
+            'ingredients': [],
+            'timers': [],
+            'is_notes_page': True
+        }
+        processed_steps.append(notes_step)
+
     for step in steps:
         # Match ingredients to this step
         step['ingredients'] = match_ingredients_to_step(step['text'], all_ingredients)
