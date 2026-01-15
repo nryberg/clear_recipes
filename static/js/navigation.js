@@ -121,8 +121,11 @@ window.recipeNavigation = (function() {
                     callbacks.onNext();
                 }
             } else {
-                // Swipe right - go to previous step
-                if (callbacks.onPrev && state.currentStep > 0) {
+                // Swipe right - go to previous step or home if at first step
+                if (state.currentStep === 0) {
+                    // At first step - go to home page
+                    window.location.href = '/';
+                } else if (callbacks.onPrev) {
                     callbacks.onPrev();
                 }
             }
