@@ -216,11 +216,11 @@ window.recipeViewer = (function() {
      * Calculate font size based on text length
      */
     function calculateFontSize(textLength) {
-        if (textLength < 50) return 'text-5xl md:text-7xl lg:text-8xl';
-        if (textLength < 100) return 'text-4xl md:text-6xl lg:text-7xl';
-        if (textLength < 150) return 'text-3xl md:text-5xl lg:text-6xl';
-        if (textLength < 250) return 'text-2xl md:text-4xl lg:text-5xl';
-        return 'text-xl md:text-3xl lg:text-4xl';
+        if (textLength < 50) return 'text-4xl md:text-6xl lg:text-7xl';
+        if (textLength < 100) return 'text-3xl md:text-5xl lg:text-6xl';
+        if (textLength < 150) return 'text-2xl md:text-4xl lg:text-5xl';
+        if (textLength < 250) return 'text-xl md:text-3xl lg:text-4xl';
+        return 'text-lg md:text-2xl lg:text-3xl';
     }
 
     /**

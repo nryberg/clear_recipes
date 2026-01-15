@@ -1,6 +1,7 @@
 # TODO:
 
 - [ ] If there are any notes in the recipe, show those on the second page, titled "Notes", and then proceed with the steps of the recipe.
+- [ ] On pages after the first page with ingredients, do not title it "Ingredients for this step:" Simply show it with the different shading.
 - [ ] I would like to be able to save recipes
 - [ ] I would like to be able to search saved recipes
 - [ ] Make it possible to share recipes with a shortened URL
@@ -10,3 +11,4 @@
 - [x] Left swipe at the first page should take you back to the home page.
 - [x] "Serves:" should only appear on the first page with the ingredients.
 - [x] If there's a preheat oven, put that on the first page after the ingredients.
+- [x] Make the steps text just a bit smaller.
