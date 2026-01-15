@@ -6,11 +6,34 @@ A web app for displaying recipes step-by-step with smart features.
 from flask import Flask, render_template, jsonify, request
 import os
 import re
+import json
 import argparse
+from datetime import datetime
 from recipe_parser import parse_recipe
 from recipe_scraper import scrape_recipe
 from ingredient_matcher import match_ingredients_to_step
 from timer_detector import detect_timers
+
+
+# File for storing saved recipes (can be backed up)
+SAVED_RECIPES_FILE = 'saved_recipes.json'
+
+
+def load_saved_recipes():
+    """Load saved recipes from JSON file."""
+    if os.path.exists(SAVED_RECIPES_FILE):
+        try:
+            with open(SAVED_RECIPES_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return []
+    return []
+
+
+def save_recipes_to_file(recipes):
+    """Save recipes to JSON file."""
+    with open(SAVED_RECIPES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(recipes, f, indent=2, ensure_ascii=False)
 
 
 def detect_preheat_oven(steps):
@@ -148,9 +171,27 @@ def list_recipes():
 
 @app.route('/api/recipe/<recipe_id>')
 def get_recipe(recipe_id):
-    """Get a local recipe by ID."""
+    """Get a recipe by ID (local or saved)."""
     try:
-        # Build file path
+        # Check if this is a saved recipe
+        if recipe_id.startswith('saved-'):
+            saved_id = recipe_id[6:]  # Remove 'saved-' prefix
+            recipes = load_saved_recipes()
+            recipe_data = next((r for r in recipes if r['id'] == saved_id), None)
+
+            if not recipe_data:
+                return jsonify({
+                    'success': False,
+                    'error': 'Saved recipe not found'
+                }), 404
+
+            # Saved recipes are already processed, return as-is
+            return jsonify({
+                'success': True,
+                'recipe': recipe_data
+            })
+
+        # Build file path for local recipe
         filepath = os.path.join(RECIPES_DIR, f"{recipe_id}.txt")
 
         if not os.path.exists(filepath):
@@ -200,6 +241,123 @@ def scrape_recipe_endpoint():
         return jsonify({
             'success': True,
             'recipe': recipe_data
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============ Saved Recipes API ============
+
+@app.route('/api/saved')
+def list_saved_recipes():
+    """List all saved recipes."""
+    recipes = load_saved_recipes()
+    # Return summary info only (not full recipe data)
+    summaries = [{
+        'id': r['id'],
+        'title': r['title'],
+        'serves': r.get('serves'),
+        'saved_at': r.get('saved_at')
+    } for r in recipes]
+    return jsonify({
+        'success': True,
+        'recipes': summaries
+    })
+
+
+@app.route('/api/saved', methods=['POST'])
+def save_recipe_endpoint():
+    """Save a recipe."""
+    try:
+        data = request.get_json()
+
+        if not data or 'title' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'Recipe data is required'
+            }), 400
+
+        recipes = load_saved_recipes()
+
+        # Check if recipe already exists (by title)
+        existing_index = next(
+            (i for i, r in enumerate(recipes) if r['title'] == data['title']),
+            None
+        )
+
+        recipe_to_save = {
+            'id': recipes[existing_index]['id'] if existing_index is not None else str(int(datetime.now().timestamp() * 1000)),
+            'title': data['title'],
+            'serves': data.get('serves'),
+            'ingredients': data.get('ingredients', []),
+            'steps': data.get('steps', []),
+            'source_url': data.get('source_url'),
+            'notes': data.get('notes'),
+            'saved_at': datetime.now().isoformat()
+        }
+
+        if existing_index is not None:
+            recipes[existing_index] = recipe_to_save
+            is_update = True
+        else:
+            recipes.insert(0, recipe_to_save)
+            is_update = False
+
+        save_recipes_to_file(recipes)
+
+        return jsonify({
+            'success': True,
+            'isUpdate': is_update,
+            'id': recipe_to_save['id']
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/saved/<recipe_id>')
+def get_saved_recipe(recipe_id):
+    """Get a specific saved recipe."""
+    recipes = load_saved_recipes()
+    recipe = next((r for r in recipes if r['id'] == recipe_id), None)
+
+    if not recipe:
+        return jsonify({
+            'success': False,
+            'error': 'Recipe not found'
+        }), 404
+
+    return jsonify({
+        'success': True,
+        'recipe': recipe
+    })
+
+
+@app.route('/api/saved/<recipe_id>', methods=['DELETE'])
+def delete_saved_recipe(recipe_id):
+    """Delete a saved recipe."""
+    try:
+        recipes = load_saved_recipes()
+        original_length = len(recipes)
+        recipes = [r for r in recipes if r['id'] != recipe_id]
+
+        if len(recipes) == original_length:
+            return jsonify({
+                'success': False,
+                'error': 'Recipe not found'
+            }), 404
+
+        save_recipes_to_file(recipes)
+
+        return jsonify({
+            'success': True
         })
 
     except Exception as e:

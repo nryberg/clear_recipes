@@ -29,11 +29,19 @@ window.recipeViewer = (function() {
             errorState: document.getElementById('error-state'),
             errorMessage: document.getElementById('error-message'),
             recipeContainer: document.getElementById('recipe-container'),
-            progressBar: document.getElementById('progress-bar')
+            progressBar: document.getElementById('progress-bar'),
+            saveBtn: document.getElementById('save-btn'),
+            saveIconOutline: document.getElementById('save-icon-outline'),
+            saveIconFilled: document.getElementById('save-icon-filled')
         };
 
         // Load recipe
         loadRecipe(recipeId);
+
+        // Setup save button
+        if (elements.saveBtn) {
+            elements.saveBtn.addEventListener('click', handleSaveClick);
+        }
 
         // Initialize navigation
         if (window.recipeNavigation) {
@@ -94,6 +102,9 @@ window.recipeViewer = (function() {
 
             // Render first (or specified) step
             renderStep(currentStepIndex);
+
+            // Check if recipe is already saved
+            checkIfSaved();
 
         } catch (error) {
             console.error('Error loading recipe:', error);
@@ -281,6 +292,49 @@ window.recipeViewer = (function() {
         elements.loadingState.style.display = 'none';
         elements.errorMessage.textContent = message;
         elements.errorState.classList.remove('hidden');
+    }
+
+    /**
+     * Handle save button click
+     */
+    async function handleSaveClick() {
+        if (!recipe || !window.recipeStorage) return;
+
+        const result = await window.recipeStorage.saveRecipe(recipe);
+
+        if (result.success) {
+            updateSaveIcon(true);
+            // Brief visual feedback
+            elements.saveBtn.classList.add('scale-110');
+            setTimeout(() => elements.saveBtn.classList.remove('scale-110'), 200);
+        } else {
+            alert('Failed to save recipe: ' + (result.error || 'Unknown error'));
+        }
+    }
+
+    /**
+     * Update save icon based on saved state
+     */
+    function updateSaveIcon(isSaved) {
+        if (!elements.saveIconOutline || !elements.saveIconFilled) return;
+
+        if (isSaved) {
+            elements.saveIconOutline.classList.add('hidden');
+            elements.saveIconFilled.classList.remove('hidden');
+        } else {
+            elements.saveIconOutline.classList.remove('hidden');
+            elements.saveIconFilled.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Check if current recipe is saved and update icon
+     */
+    async function checkIfSaved() {
+        if (!recipe || !window.recipeStorage) return;
+
+        const isSaved = await window.recipeStorage.isRecipeSaved(recipe.title);
+        updateSaveIcon(isSaved);
     }
 
     // Public API
