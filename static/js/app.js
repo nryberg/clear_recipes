@@ -120,9 +120,10 @@ window.recipeViewer = (function() {
 
         // Render ingredients for this step
         if (step.ingredients && step.ingredients.length > 0) {
+            const showTitle = step.is_ingredients_list;
             let ingredientsHTML = `
                 <div class="bg-gray-100 dark:bg-gray-800 p-4 md:p-6 rounded">
-                    <h3 class="text-xl md:text-2xl font-semibold mb-3">${step.is_ingredients_list ? 'Ingredients:' : 'Ingredients for this step:'}</h3>
+                    ${showTitle ? '<h3 class="text-xl md:text-2xl font-semibold mb-3">Ingredients:</h3>' : ''}
                     <ul class="space-y-2">
                         ${step.ingredients.map(ing => `
                             <li class="text-lg md:text-xl">${ing}</li>
