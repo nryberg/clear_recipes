@@ -82,7 +82,6 @@ window.recipeViewer = (function() {
 
             // Set recipe header
             elements.recipeTitle.textContent = recipe.title;
-            elements.recipeServes.textContent = recipe.serves ? `Serves: ${recipe.serves}` : '';
 
             // Check for URL hash (e.g., #step-2)
             const hash = window.location.hash;
@@ -111,6 +110,13 @@ window.recipeViewer = (function() {
         }
 
         const step = recipe.steps[index];
+
+        // Show serves only on ingredients page
+        if (step.is_ingredients_list && recipe.serves) {
+            elements.recipeServes.textContent = `Serves: ${recipe.serves}`;
+        } else {
+            elements.recipeServes.textContent = '';
+        }
 
         // Render ingredients for this step
         if (step.ingredients && step.ingredients.length > 0) {
