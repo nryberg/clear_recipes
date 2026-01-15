@@ -1,0 +1,15 @@
+[Unit]
+Description=Clear Recipes Web Application
+After=network.target
+
+[Service]
+Type=simple
+User=nick
+WorkingDirectory=/home/nick/clear_recipes
+Environment="PATH=/home/nick/clear_recipes/venv/bin"
+ExecStart=/home/nick/clear_recipes/venv/bin/python /home/nick/clear_recipes/app.py --port 8080
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
