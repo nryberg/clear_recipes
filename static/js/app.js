@@ -28,7 +28,8 @@ window.recipeViewer = (function() {
             loadingState: document.getElementById('loading-state'),
             errorState: document.getElementById('error-state'),
             errorMessage: document.getElementById('error-message'),
-            recipeContainer: document.getElementById('recipe-container')
+            recipeContainer: document.getElementById('recipe-container'),
+            progressBar: document.getElementById('progress-bar')
         };
 
         // Load recipe
@@ -168,6 +169,10 @@ window.recipeViewer = (function() {
 
         // Update step indicator
         elements.stepIndicator.textContent = `Step ${index + 1} of ${recipe.steps.length}`;
+
+        // Update progress bar
+        const progress = ((index + 1) / recipe.steps.length) * 100;
+        elements.progressBar.style.width = `${progress}%`;
 
         // Update navigation buttons
         elements.prevBtn.disabled = index === 0;
