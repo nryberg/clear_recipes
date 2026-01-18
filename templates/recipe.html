@@ -57,6 +57,27 @@
         <div id="progress-bar" class="h-full bg-black dark:bg-white transition-all duration-300 ease-out" style="width: 0%"></div>
     </div>
 
+    <!-- Navigation controls -->
+    <div class="p-2 md:p-4 border-b dark:border-gray-700">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <button
+                id="prev-btn"
+                class="text-lg md:text-xl px-4 md:px-6 py-2 md:py-3 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            >
+                ← Previous
+            </button>
+
+            <span id="step-indicator" class="text-base md:text-lg font-medium"></span>
+
+            <button
+                id="next-btn"
+                class="text-lg md:text-xl px-4 md:px-6 py-2 md:py-3 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            >
+                Next →
+            </button>
+        </div>
+    </div>
+
     <!-- Step content (dynamically updated) -->
     <main id="step-content" class="flex-1 p-6 md:p-12 flex items-center justify-center">
         <div class="max-w-4xl w-full">
@@ -70,27 +91,6 @@
             <div id="step-timers" class="mt-8"></div>
         </div>
     </main>
-
-    <!-- Navigation controls -->
-    <footer class="p-4 md:p-6 border-t dark:border-gray-700">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <button
-                id="prev-btn"
-                class="text-xl md:text-2xl px-4 md:px-8 py-2 md:py-4 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-            >
-                ← Previous
-            </button>
-
-            <span id="step-indicator" class="text-lg md:text-xl font-medium"></span>
-
-            <button
-                id="next-btn"
-                class="text-xl md:text-2xl px-4 md:px-8 py-2 md:py-4 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-            >
-                Next →
-            </button>
-        </div>
-    </footer>
 
     <!-- Loading state -->
     <div id="loading-state" class="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center">
