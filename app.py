@@ -145,6 +145,10 @@ def process_recipe_steps(recipe_data):
 @app.route('/')
 def index():
     """Home page - recipe selection and URL input."""
+    # Check for URL parameter to auto-load a recipe
+    url = request.args.get('url')
+    if url:
+        return render_template('index.html', auto_load_url=url)
     return render_template('index.html')
 
 

@@ -292,5 +292,13 @@
     // Load recipes on page load
     loadRecipes();
     loadSavedRecipes();
+
+    // Auto-load URL if passed as parameter
+    {% if auto_load_url %}
+    (function() {
+        document.getElementById('recipe-url').value = "{{ auto_load_url }}";
+        scrapeRecipe();
+    })();
+    {% endif %}
 </script>
 {% endblock %}
