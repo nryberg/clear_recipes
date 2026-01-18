@@ -402,8 +402,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--port',
         type=int,
-        default=int(os.getenv('RECIPE_APP_PORT', 5000)),
-        help='Port to run the application on (default: 5000 or RECIPE_APP_PORT env var)'
+        default=int(os.getenv('PORT', os.getenv('RECIPE_APP_PORT', 80))),
+        help='Port to run the application on (default: 80, or PORT/RECIPE_APP_PORT env var)'
     )
     parser.add_argument(
         '--debug',
