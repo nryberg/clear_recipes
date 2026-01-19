@@ -14,8 +14,13 @@
             </a>
         </div>
 
-        <!-- Dark mode toggle (upper right corner) -->
-        <div class="fixed top-4 right-4">
+        <!-- Help and Dark mode toggle (upper right corner) -->
+        <div class="fixed top-4 right-4 flex items-center gap-1">
+            <a href="/about" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="About &amp; Help">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </a>
             <button id="dark-mode-toggle" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="Toggle Dark Mode">
                 <!-- Sun icon (shown in dark mode) -->
                 <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">

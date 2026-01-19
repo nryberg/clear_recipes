@@ -152,6 +152,12 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/about')
+def about():
+    """About page with app info and bookmarklet instructions."""
+    return render_template('about.html')
+
+
 @app.route('/recipe/<recipe_id>')
 def recipe_viewer(recipe_id):
     """Recipe viewer page (SPA container)."""

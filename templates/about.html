@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Clear Recipes - About{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col items-center p-8">
+    <div class="max-w-2xl w-full">
+        <!-- Home icon (upper left corner) -->
+        <div class="fixed top-4 left-4">
+            <a href="/" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="Home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Dark mode toggle (upper right corner) -->
+        <div class="fixed top-4 right-4 flex items-center gap-1">
+            <a href="/about" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition text-black dark:text-white" title="About">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </a>
+            <button id="dark-mode-toggle" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition" title="Toggle Dark Mode">
+                <!-- Sun icon (shown in dark mode) -->
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <!-- Moon icon (shown in light mode) -->
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </div>
+
+        <h1 class="text-4xl md:text-5xl font-bold mb-8 pt-12">About Clear Recipes</h1>
+
+        <div class="prose dark:prose-invert max-w-none space-y-8">
+            <section>
+                <h2 class="text-2xl md:text-3xl font-semibold mb-4">What is Clear Recipes?</h2>
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Clear Recipes is a simple recipe viewer that strips away the clutter and presents recipes
+                    step-by-step. No more scrolling through life stories, ads, and pop-ups. Just the ingredients
+                    and instructions you need, one step at a time.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-2xl md:text-3xl font-semibold mb-4">Features</h2>
+                <ul class="text-lg text-gray-700 dark:text-gray-300 space-y-2 list-disc list-inside">
+                    <li>Step-by-step recipe viewing</li>
+                    <li>Ingredients shown per step</li>
+                    <li>Automatic timer detection</li>
+                    <li>Dark mode support</li>
+                    <li>Works on 100+ recipe websites</li>
+                    <li>Save and share your favorite recipes</li>
+                    <li>Swipe navigation on mobile</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-2xl md:text-3xl font-semibold mb-4">Bookmarklet</h2>
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                    Add a bookmarklet to your browser to instantly send any recipe page to Clear Recipes with one click.
+                </p>
+
+                <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg mb-4">
+                    <p class="font-semibold mb-3">To create the bookmarklet:</p>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                        <li>Drag this link to your bookmarks bar:
+                            <a href="javascript:(function(){window.location='https://recipes.rybergs.com/?url='+encodeURIComponent(window.location.href)})();"
+                               class="inline-block px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded font-medium ml-2 hover:bg-gray-800 dark:hover:bg-gray-200 transition">
+                                Clear Recipe
+                            </a>
+                        </li>
+                        <li>Or, create a new bookmark manually with this URL:</li>
+                    </ol>
+                    <div class="mt-3 p-3 bg-gray-200 dark:bg-gray-700 rounded font-mono text-sm break-all select-all">
+                        javascript:(function(){window.location='https://recipes.rybergs.com/?url='+encodeURIComponent(window.location.href)})();
+                    </div>
+                </div>
+
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <strong>On iPad/iPhone:</strong> Create a bookmark of any page, then edit it and replace the URL
+                    with the JavaScript code above. When you're on a recipe page, tap the bookmarklet to load it in Clear Recipes.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-2xl md:text-3xl font-semibold mb-4">Chrome Extension</h2>
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                    A Chrome extension is also available for one-click recipe loading. Install it in developer mode:
+                </p>
+                <ol class="list-decimal list-inside space-y-2 text-lg text-gray-700 dark:text-gray-300">
+                    <li>Download the extension from the <a href="https://github.com/nryberg/clear_recipes" class="text-blue-600 dark:text-blue-400 underline">GitHub repository</a></li>
+                    <li>Open Chrome and go to <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">chrome://extensions/</code></li>
+                    <li>Enable "Developer mode" (toggle in top right)</li>
+                    <li>Click "Load unpacked" and select the <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">chrome-extension</code> folder</li>
+                </ol>
+            </section>
+
+            <section>
+                <h2 class="text-2xl md:text-3xl font-semibold mb-4">Keyboard Shortcuts</h2>
+                <div class="grid grid-cols-2 gap-4 text-lg">
+                    <div class="text-gray-700 dark:text-gray-300">Next step</div>
+                    <div><kbd class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">→</kbd> or <kbd class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">Space</kbd></div>
+                    <div class="text-gray-700 dark:text-gray-300">Previous step</div>
+                    <div><kbd class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">←</kbd></div>
+                    <div class="text-gray-700 dark:text-gray-300">Go home</div>
+                    <div><kbd class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">Esc</kbd> or swipe right on first page</div>
+                </div>
+            </section>
+
+            <section class="pb-12">
+                <h2 class="text-2xl md:text-3xl font-semibold mb-4">Open Source</h2>
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Clear Recipes is open source. View the code, report issues, or contribute on
+                    <a href="https://github.com/nryberg/clear_recipes" class="text-blue-600 dark:text-blue-400 underline">GitHub</a>.
+                </p>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
