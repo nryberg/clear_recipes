@@ -81,13 +81,14 @@ def get_ingredient_variations(ingredient_name: str) -> Set[str]:
     if ingredient_name.lower().endswith('ing'):
         variations.add(ingredient_name[:-3].lower())
 
-    # Add individual words if multi-word ingredient
+    # For multi-word ingredients, only add the LAST word as a variation
+    # The first words are usually modifiers (baking, brown, chocolate)
+    # that could cause false matches (e.g., "baking" matching "baking sheets")
     words = ingredient_name.split()
     if len(words) > 1:
-        # Add each significant word
-        for word in words:
-            if len(word) > 3:  # Ignore short words like "of", "and"
-                variations.add(word.lower())
+        last_word = words[-1]
+        if len(last_word) > 3:
+            variations.add(last_word.lower())
 
     return variations
 
@@ -115,9 +116,9 @@ def match_ingredients_to_step(step_text: str, ingredients: List[str]) -> List[st
 
         variations = get_ingredient_variations(name)
 
-        # Check if any variation appears in the step text
+        # Check if any variation appears in the step text as a whole word
         for variant in variations:
-            if variant and variant in step_lower:
+            if variant and re.search(rf'\b{re.escape(variant)}\b', step_lower):
                 matched.append(ingredient)
                 break
 
